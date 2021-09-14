@@ -1,0 +1,11 @@
+{% extends "absence/base.html" %}
+{% block content %}
+{{ user.username }}
+  <article class="media content-section">
+    <div class="media-body">
+      <div class="article-metadata">
+        <a class="mr-2" href="{% url 'show-courses-pk' pk=course.pk %}">{{ object.course_name }}</a>
+      </div>
+    </div>
+  </article>
+{% endblock content %}

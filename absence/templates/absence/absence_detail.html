@@ -1,0 +1,24 @@
+{% extends "absence/base.html" %}
+{% block content %}
+{% if object.username == user %}
+    {{ user.username }}
+    <h1>super</h1>
+    <article class="media content-section">
+      <div class="media-body">
+        <div class="article-metadata">
+          <a class="mr-2" href="{% url 'user-absences' user.username %}">{{ user.username }}</a>
+          <small class="text-muted">{{ object.date_of_absence|date:"F d, Y" }}</small>
+        </div>
+        <h2 class="aricle-title">{{ object.course }}</h2>
+        <p class="article-content">Absences left: {{ object.absences_left }}</p>
+        {% if object.is_failed == False %}
+          <p class="article-content">Keep going</p>
+        {% else %}
+          <p class="article-content">You have failed this class</p>
+        {% endif %}
+        </div>
+    </article>
+{% else %}
+      <h1>Error 404</h1>
+{% endif %}
+{% endblock content %}
