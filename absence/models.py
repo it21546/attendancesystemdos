@@ -21,9 +21,20 @@ class Course(models.Model):
     users_available = models.ManyToManyField(User)
     post_und = models.CharField(max_length = 100, choices = POSTUND_CHOICES, default = '')
     department = models.CharField(max_length = 100, choices = DEPARTMENT_CHOICES, default = 'Πληροφορικής και Τηλεματικής')
+    current_user = models.ForeignKey(User, related_name='owner', null=True, on_delete=models.CASCADE)
 
     def __str__(self):
         return self.course_name
+
+    @classmethod
+    def pick_course(cls, current_user, new_course):
+        course, created = cls.objects.get_or_create(current_user=current_user)
+        course.users_available.add(current_user)
+
+    @classmethod
+    def drop_course(cls, current_user, new_course):
+        course, created = cls.objects.get_or_create(current_user=current_user)
+        course.users_available.remove(current_user)
 
 
 class Absence(models.Model):

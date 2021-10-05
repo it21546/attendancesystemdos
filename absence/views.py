@@ -1,4 +1,4 @@
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, get_object_or_404, redirect
 from django.http import HttpResponse
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
@@ -6,6 +6,7 @@ from django.contrib.auth.models import User
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from .models import Absence, Course
 from .forms import AbsenceCreateForm
+from django.views.decorators.csrf import csrf_exempt
 # Create your views here.
 """
 #@login_required
@@ -29,6 +30,14 @@ def choose_course(request):
         'courses': Course.objects.all()#(username=request.user.username)
     }
     return render(request, 'absence/show_courses.html', context)
+
+@login_required
+def final_choose_course(request):
+    context = {
+        'courses': Course.objects.all()#(username=request.user.username)
+    }
+    return render(request, 'absence/finalview.html', context)
+
 
 def test_choose_course(request, pk=None):
     if pk:
@@ -123,3 +132,21 @@ class AbsenceDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
 		if self.request.user == absence.username:
 			return True
 		return False
+
+def change_course(request, operation, pk):
+    course = Course.objects.filter(pk=pk)
+    if operation == 'add':
+        Course.pick_course(request.user, course)
+    elif operation == 'remove':
+        Course.drop_course(request.user, course)
+    return redirect('/absence/')
+
+@csrf_exempt
+def ajax_change_course(request):
+    if request.is_ajax():
+        course_name = request.POST.get('course_name', False)
+        print(course_name)
+        course = Course.objects.filter(course_name=course_name).first()
+        course.users_available.add(request.user)
+        course.save()
+    return redirect('/absence/')

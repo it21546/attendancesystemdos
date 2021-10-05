@@ -1,0 +1,76 @@
+{% extends "absence/base.html" %}
+{% block content %}
+{{ user.username }}
+<br>Μαθήματα Μεταπτυχιακού</br>
+{% for course in courses %}
+  {% if course.post_und == 'Μεταπτυχιακό' %}
+  <article class="media content-section">
+    <div class="media-body">
+      <div class="article-metadata">
+        <a class="mr-2" href="{% url 'show-courses-pk' pk=course.pk %}">{{ course.course_name }}</a>
+      </div>
+      <!-- <a href="{% url 'absence:change_course' operation='add' pk=course.pk %}"> </a>-->
+      <button type="button" class="btn add_course" id="{{course.course_name}}" class="btn btn-default">Προσθήκη</button>
+
+    </div>
+  </article>
+  {% endif %}
+{% endfor %}
+Μαθήματα Προπτυχιακού
+{% for course in courses %}
+  {% if course.post_und == 'Προπτυχιακό' %}
+  <article class="media content-section">
+    <div class="media-body">
+      <div class="article-metadata">
+        <a class="mr-2" href="{% url 'show-courses-pk' pk=course.pk %}">{{ course.course_name }}</a>
+      </div>
+        <!-- <a href="{% url 'absence:change_course' operation='add' pk=course.pk %}"> <a/>-->
+      <button type="button" name="add_course" id="add_course" class="btn btn-default">Προσθήκη</button>
+
+    </div>
+  </article>
+  {% endif %}
+  {% endfor %}
+{% if is_paginated %}
+  {% if page_obj.has_previous %}
+    <a class="btn btn-outline-info mb-4" href="?page=1">First</a>
+    <a class="btn btn-outline-info mb-4" href="?page={{ page_obj.previous_page_number }}">Previous</a>
+  {% endif %}
+  {% for num in page_obj.paginator.page_range %}
+    {% if page_obj.number == num %}
+      <a class="btn btn-info mb-4" href="?page={{ num }}">{{ num }}</a>
+    {% elif num > page_obj.number|add:'-2' and num < page_obj.number|add:'2'%}
+      <a class="btn btn-outline-info mb-4" href="?page={{ num }}">{{ num }}</a>
+    {% endif %}
+  {% endfor %}
+  {% if page_obj.has_next %}
+    <a class="btn btn-outline-info mb-4" href="?page={{ page_obj.next_page_number }}">Next</a>
+    <a class="btn btn-outline-info mb-4" href="?page={{ page_obj.paginator.num_pages }}">Last</a>
+  {% endif %}
+{% endif %}
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+<script>
+  $(document).ready(function() {
+    $(".add_course").on('click', function () {
+      $.ajax({
+        method:'POST',
+        url: '/absence/ajax_change_course/',
+        data: {
+          'csrfmiddlewaretoken': $('input[name="csrfmiddlewaretoken"]').val(),
+          'course_name': $(this).attr('id')
+        },
+        dataType: 'json',
+        success: function (data) {
+          if (data.success) {
+            alert("ajax call success.");
+          }else{
+            alert("ajax call not success.");
+          }
+        }
+      });
+
+    });
+    });
+  </script>
+
+{% endblock content %}
